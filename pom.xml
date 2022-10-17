@@ -5,6 +5,8 @@
         <module>autumn-compiler</module>
         <module>autumn-core</module>
         <module>autumn-spring-boot-starter</module>
+        <module>autumn-api</module>
+        <module>autumn-controller</module>
     </modules>
 
     <parent>
