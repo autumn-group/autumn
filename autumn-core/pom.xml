@@ -22,5 +22,10 @@
             <groupId>cloud.micronative</groupId>
             <artifactId>autumn-compiler</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.training.thrift</groupId>
+            <artifactId>training-thrift-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
