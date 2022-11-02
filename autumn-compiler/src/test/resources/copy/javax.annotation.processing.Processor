@@ -1,0 +1,3 @@
+io.microwave.compiler.ExportServiceProcessor
+io.microwave.compiler.ReferenceServiceProcessor
+io.microwave.compiler.MicrowaveServerProcessor

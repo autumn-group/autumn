@@ -115,7 +115,12 @@
         <dependencies>
             <dependency>
                 <groupId>cloud.micronative</groupId>
-                <artifactId>autumn-compiler</artifactId>
+                <artifactId>autumn-core</artifactId>
+                <version>2.6.12-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>cloud.micronative</groupId>
+                <artifactId>autumn-api</artifactId>
                 <version>2.6.12-SNAPSHOT</version>
             </dependency>
             <dependency>

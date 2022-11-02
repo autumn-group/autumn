@@ -30,7 +30,7 @@ public class FreemarkerUtil {
             // 第三步：设置模板文件使用的字符集。一般就是utf-8.
             configuration.setDefaultEncoding("utf-8");
             // 第四步：加载一个模板，创建一个模板对象。
-            Template template = configuration.getTemplate("microwave-server.ftl");
+            Template template = configuration.getTemplate("export-service.ftl");
 
             // 第五步：创建一个模板使用的数据集，可以是pojo也可以是map。一般是Map。
             Map<String, Object> root = new HashMap<>();
@@ -81,7 +81,7 @@ public class FreemarkerUtil {
             // 第三步：设置模板文件使用的字符集。一般就是utf-8.
             configuration.setDefaultEncoding("utf-8");
             // 第四步：加载一个模板，创建一个模板对象。
-            Template template = configuration.getTemplate("reference-proxy.ftl");
+            Template template = configuration.getTemplate("reference-service.ftl");
 
             // 第五步：创建一个模板使用的数据集，可以是pojo也可以是map。一般是Map。
             Map<String, Object> root = new HashMap<>();
