@@ -17,6 +17,10 @@ public final class AutumnPool<T extends ConcurrentBagEntry> {
         mapping = new ConcurrentHashMap<>();
     }
 
+    public void put(T clazz, ConcurrentBag bagEntry) {
+        mapping.put(clazz.getClass(), bagEntry);
+    }
+
     public static AutumnPool getSigSingleton() {
         if (singleton == null) {
             synchronized (AutumnPool.class) {

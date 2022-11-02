@@ -21,6 +21,7 @@
         <dependency>
             <groupId>cloud.micronative</groupId>
             <artifactId>autumn-compiler</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.training.thrift</groupId>

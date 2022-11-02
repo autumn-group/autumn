@@ -12,8 +12,8 @@ public class AutumnPoolTest {
     void test() {
         log.info("==================");
 
-        AutumnPool pool = new AutumnPool();
-        pool.getClientConnection(SomeService.Client.class);
+        AutumnPool pool = AutumnPool.getSigSingleton();
+//        pool.getConnection(SomeService.Client.class);
 
     }
 
