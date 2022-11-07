@@ -1,13 +1,16 @@
 package cloud.micronative.autumn.core.pool;
 
+import cloud.micronative.autumn.core.pool.impl.ConcurrentBag;
+import cloud.micronative.autumn.core.pool.impl.ConcurrentBagEntry;
 import cloud.micronative.autumn.core.util.AutumnException;
+import org.apache.thrift.TServiceClient;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public final class AutumnPool<T extends ConcurrentBagEntry> {
     private volatile static AutumnPool singleton = null;
-    private ConcurrentHashMap<Class, ConcurrentBag> mapping;
+    private ConcurrentHashMap<String, ConcurrentBag> mapping;
 
     private AutumnPool() {
 
@@ -17,11 +20,7 @@ public final class AutumnPool<T extends ConcurrentBagEntry> {
         mapping = new ConcurrentHashMap<>();
     }
 
-    public void put(T clazz, ConcurrentBag bagEntry) {
-        mapping.put(clazz.getClass(), bagEntry);
-    }
-
-    public static AutumnPool getSigSingleton() {
+    public static AutumnPool getInstance() {
         if (singleton == null) {
             synchronized (AutumnPool.class) {
                 if (singleton == null) {
@@ -34,18 +33,18 @@ public final class AutumnPool<T extends ConcurrentBagEntry> {
         return singleton;
     }
 
-    public ConcurrentBagEntry getConnection(T clazz) {
-        ConcurrentBag bagEntry = mapping.get(clazz);
+    public <T extends TServiceClient> T getConnection(String service) {
+        ConcurrentBag bagEntry = mapping.get(service);
         try {
-            ConcurrentBagEntry entry = bagEntry.borrow(100, TimeUnit.MILLISECONDS);
-            return entry;
+            ConcurrentBagEntry<T> entry = bagEntry.borrow(100, TimeUnit.MILLISECONDS);
+            return entry.getEntry();
         } catch (InterruptedException e) {
-            throw new AutumnException("autumn pool get connection timeout", e);
+            throw new AutumnException("Autumn Pool Get Connection timeout", e);
         }
     }
 
-    public  void release(T clazz, ConcurrentBagEntry entry) {
-        ConcurrentBag bagEntry = mapping.get(clazz);
+    public  void release(String service, ConcurrentBagEntry entry) {
+        ConcurrentBag bagEntry = mapping.get(service);
         bagEntry.requite(entry);
     }
 

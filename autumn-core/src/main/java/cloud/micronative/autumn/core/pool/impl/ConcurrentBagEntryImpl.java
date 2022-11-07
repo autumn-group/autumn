@@ -1,14 +1,16 @@
-package cloud.micronative.autumn.core.pool;
+package cloud.micronative.autumn.core.pool.impl;
 
+import cloud.micronative.autumn.core.pool.AutumnPool;
 import org.apache.thrift.TServiceClient;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConcurrentBagEntryImpl<T extends TServiceClient> implements ConcurrentBagEntry{
     private final AtomicInteger state =  new AtomicInteger(STATE_NOT_IN_USE);
+    private String service;
     private T entry;
-
-    public ConcurrentBagEntryImpl(T entry) {
+    public ConcurrentBagEntryImpl(String service, T entry) {
+        this.service = service;
         this.entry = entry;
     }
 
@@ -18,9 +20,14 @@ public class ConcurrentBagEntryImpl<T extends TServiceClient> implements Concurr
     }
 
     @Override
+    public String getService() {
+        return null;
+    }
+
+    @Override
     public void close() {
-        AutumnPool pool = AutumnPool.getSigSingleton();
-        pool.release(this);
+        AutumnPool pool = AutumnPool.getInstance();
+        pool.release(this.getService(), this);
     }
 
     @Override

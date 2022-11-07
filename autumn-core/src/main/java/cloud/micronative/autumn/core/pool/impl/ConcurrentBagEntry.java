@@ -1,4 +1,4 @@
-package cloud.micronative.autumn.core.pool;
+package cloud.micronative.autumn.core.pool.impl;
 
 import org.apache.thrift.TServiceClient;
 
@@ -12,5 +12,6 @@ public interface ConcurrentBagEntry<T extends TServiceClient> {
     void setState(int newState);
     int getState();
     T getEntry();
+    String getService();
     void close();
 }

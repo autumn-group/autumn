@@ -1,4 +1,4 @@
-package cloud.micronative.autumn.core.pool;
+package cloud.micronative.autumn.core.pool.impl;
 
 import cloud.micronative.autumn.core.util.AutumnException;
 import lombok.extern.slf4j.Slf4j;
@@ -8,8 +8,8 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static cloud.micronative.autumn.core.pool.ConcurrentBagEntry.STATE_IN_USE;
-import static cloud.micronative.autumn.core.pool.ConcurrentBagEntry.STATE_NOT_IN_USE;
+import static cloud.micronative.autumn.core.pool.impl.ConcurrentBagEntry.STATE_IN_USE;
+import static cloud.micronative.autumn.core.pool.impl.ConcurrentBagEntry.STATE_NOT_IN_USE;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.locks.LockSupport.parkNanos;
