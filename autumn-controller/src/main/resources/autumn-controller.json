@@ -1,0 +1,12 @@
+{
+  "consumer": {
+    "service": "example-consumer",
+    "instance": [
+      {
+        "ip": "",
+        "port": "30880",
+        "connections": "1"
+      }
+    ]
+  }
+}
