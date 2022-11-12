@@ -1,4 +1,4 @@
-package cloud.micronative.autumn.controller.model;
+package cloud.micronative.autumn.core.model;
 
 public class Config {
     private Consumer consumer;
