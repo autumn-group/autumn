@@ -6,10 +6,6 @@ import java.util.List;
 
 @Data
 public class Consumer {
-    private String service;
-    private String poolType;
-    private Long poolTimeout;
-    private Long connectionTimeout;
-    private Long socketTimeout;
-    private List<ConsumerInstance> instances;
+    private Boolean enabled;
+    List<Service> services;
 }

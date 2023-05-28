@@ -1,14 +1,18 @@
 compiler:
-  consumerPath: default
-  providerPath: default
-consumers:
-  - service: default/some-service
-    poolTimeout: 1000
-    connectionTimeout: 1000
-    socketTimeout: 1000
-    instances:
-      - ip: 127.0.0.1
-        port: 30880
-        connections: 1
+
+consumer:
+  enabled: true
+  services:
+    - name: some-service
+      poolTimeout: 1000
+      connectionTimeout: 1000
+      socketTimeout: 1000
+      instances:
+        - ip: 127.0.0.1
+          port: 30880
+          connections: 1
 provider:
+  enabled: true
   port: 30880
+  thread: 1
+
