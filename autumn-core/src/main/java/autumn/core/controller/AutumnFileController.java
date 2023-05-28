@@ -1,7 +1,7 @@
 package autumn.core.controller;
 
 import autumn.core.model.AutumnConfig;
-import autumn.core.model.Consumer;
+import autumn.core.model.Service;
 import autumn.core.pool.AutumnPool;
 import autumn.core.pool.ConnectionFactory;
 import autumn.core.pool.impl.ConnectionConfig;
@@ -14,15 +14,15 @@ import java.util.List;
 public class AutumnFileController {
     public void applyConsumerConfig() {
         AutumnConfig config = CommonUtil.getConfig();
-        List<Consumer> consumers = config.getConsumers();
+        List<Service> services = config.getConsumer().getServices();
         ConnectionFactory factory = ConnectionFactory.getInstance();
         AutumnPool pool = AutumnPool.getInstance();
-        consumers.forEach(consumer -> {
-            List<ConnectionConfig> connectionConfigs = ConnectionConfig.convert(consumer);
+        services.forEach(service -> {
+            List<ConnectionConfig> connectionConfigs = ConnectionConfig.convert(service);
             connectionConfigs.forEach(connectionConfig -> {
                 factory.createConnection(connectionConfig);
             });
-            pool.setServiceTimeout(consumer.getService(), consumer.getPoolTimeout());
+            pool.setServiceTimeout(service.getName(), service.getConnectionTimeout());
         });
     }
 

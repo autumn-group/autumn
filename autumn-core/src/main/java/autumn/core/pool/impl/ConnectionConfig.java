@@ -2,6 +2,7 @@ package autumn.core.pool.impl;
 
 import autumn.core.model.Consumer;
 import autumn.core.model.ConsumerInstance;
+import autumn.core.model.Service;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -15,9 +16,9 @@ public class ConnectionConfig {
     private long connectionTimeout;
     private long socketTimeout;
 
-    public static List<ConnectionConfig> convert(Consumer consumer) {
+    public static List<ConnectionConfig> convert(Service consumer) {
         List<ConnectionConfig> configs = new ArrayList<>();
-        String service = consumer.getService();
+        String service = consumer.getName();
         long connectionTimeout = consumer.getConnectionTimeout();
         long socketTimeout = consumer.getSocketTimeout();
         List<ConsumerInstance> instances = consumer.getInstances();

@@ -7,6 +7,6 @@ import java.util.List;
 @Data
 public class AutumnConfig {
     private Compiler compiler;
-    private List<Consumer> consumers;
+    private Consumer consumer;
     private Provider provider;
 }

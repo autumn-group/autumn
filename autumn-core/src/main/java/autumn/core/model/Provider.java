@@ -6,7 +6,5 @@ import lombok.Data;
 public class Provider {
     private Boolean enabled;
     private String port;
-    private Integer threads;
-
-
+    private Integer thread;
 }
