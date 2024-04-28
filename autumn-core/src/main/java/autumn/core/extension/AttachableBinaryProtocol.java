@@ -5,6 +5,7 @@ import org.apache.thrift.protocol.*;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TMemoryInputTransport;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.layered.TFastFramedTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +139,7 @@ public class AttachableBinaryProtocol extends TBinaryProtocol {
         private final String TMemoryInputTransport_buf_ = "buf_";
 
         private TFramedTransportFieldsCache() throws Exception {
-            readBuffer_ = org.apache.thrift.transport.TFramedTransport.class
+            readBuffer_ = TFastFramedTransport.class
                     .getDeclaredField(TFramedTransport_readBuffer_);
             readBuffer_.setAccessible(true);
             buf_ = TMemoryInputTransport.class

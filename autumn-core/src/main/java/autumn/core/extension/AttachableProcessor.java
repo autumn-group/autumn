@@ -17,7 +17,7 @@ public class AttachableProcessor implements TProcessor {
     }
 
     @Override
-    public boolean process(TProtocol in, TProtocol out) throws TException {
+    public void process(TProtocol in, TProtocol out) throws TException {
         if (in instanceof AttachableBinaryProtocol) {
             AttachableBinaryProtocol serverProtocol = (AttachableBinaryProtocol) in;
             TMessage message = serverProtocol.readMessageBegin();
@@ -39,8 +39,7 @@ public class AttachableProcessor implements TProcessor {
 //            }
             serverProtocol.resetMultiTFramedTransport(in);
         }
-        boolean result = realProcessor.process(in, out);
-        return result;
+        realProcessor.process(in, out);
     }
 
 }

@@ -6,10 +6,10 @@ import autumn.core.pool.impl.ConcurrentBagEntryImpl;
 import autumn.core.pool.impl.ConnectionConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TServiceClient;
-import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.apache.thrift.transport.layered.TFastFramedTransport;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -56,10 +56,10 @@ public class ConnectionFactory {
         String port = config.getPort();
         String ipPort = ip.concat(":")
                 .concat(port);
-//        String connectionPath = CommonUtil.getConnectionPath(service, ipPort);
-        TTransport socket = new TSocket(ip, Integer.valueOf(port));
-        TTransport transport = new TFramedTransport(socket);
+        TTransport transport = null;
         try {
+            TTransport socket = new TSocket(ip, Integer.valueOf(port));
+            transport = new TFastFramedTransport(socket);
             socket.open();
         } catch (TTransportException e) {
             log.warn("init client exception, config:{}, exception:", config);
