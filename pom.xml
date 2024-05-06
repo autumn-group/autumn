@@ -5,7 +5,6 @@
         <module>autumn-api</module>
         <module>autumn-compiler</module>
         <module>autumn-core</module>
-        <module>autumn-spring-boot-starter</module>
     </modules>
 
     <parent>
@@ -32,14 +31,13 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <thrift.verion>0.20.0</thrift.verion>
-        <log4j2.version>2.13.3</log4j2.version>
         <lombok.version>1.18.32</lombok.version>
         <annotation-api.version>3.0.0</annotation-api.version>
         <slf4j-api.version>2.0.13</slf4j-api.version>
         <logback.version>1.5.6</logback.version>
         <junit.version>5.10.2</junit.version>
         <commons-pool.version>1.6</commons-pool.version>
-        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-lang3.version>3.14.0</commons-lang3.version>
         <fastjson.version>2.0.49</fastjson.version>
         <commons-collections4.version>4.4</commons-collections4.version>
     </properties>
@@ -78,7 +76,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
