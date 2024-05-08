@@ -1,5 +1,6 @@
 package autumn.core.test;
 
+import autumn.core.config.ApplicationConfig;
 import autumn.core.model.AutumnConfig;
 import autumn.core.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -18,5 +19,13 @@ public class ConfigTest {
     void readConfig() {
         String result = CommonUtil.getConfig().toString();
         log.info("==============={}", result);
+    }
+
+    void test2() {
+        ApplicationConfig config = new ApplicationConfig();
+        config.setName("hello");
+        config.setPort(30880);
+
+
     }
 }

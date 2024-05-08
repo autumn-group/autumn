@@ -106,14 +106,6 @@
                 <version>${thrift.verion}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.httpcomponents.client5</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents.core5</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>jakarta.servlet</groupId>
                         <artifactId>jakarta.servlet-api</artifactId>
                     </exclusion>
