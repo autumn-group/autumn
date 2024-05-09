@@ -9,11 +9,7 @@ import lombok.Data;
 @Data
 public class ApplicationConfig {
     private String name;
-    private Integer port;
     private Boolean registered;
     private Boolean discovered;
-    private Integer minThreads;
-    private Integer maxThreads;
-    private Integer workerKeepAliveTime;
 
 }

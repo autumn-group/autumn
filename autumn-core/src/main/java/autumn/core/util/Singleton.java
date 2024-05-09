@@ -2,15 +2,19 @@ package autumn.core.util;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.thrift.TMultiplexedProcessor;
+import org.apache.thrift.TProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import autumn.core.config.ApplicationConfig;
+import autumn.core.config.ProviderConfig;
 
 /**
  * @author: baoxin.zhao
@@ -18,8 +22,12 @@ import autumn.core.config.ApplicationConfig;
  */
 public class Singleton {
     private static volatile Singleton instance;
-    private static volatile ExecutorService workerExecutor;
+    private volatile ExecutorService workerExecutor;
+    private volatile ScheduledExecutorService scheduledExecutorService;
+    private volatile TMultiplexedProcessor multiplexedProcessor;
+
     private static final String THREAD_POOL_NAME_WORKER = "autumn-thread-pool";
+
     private Singleton() {
 
     }
@@ -31,11 +39,39 @@ public class Singleton {
                 }
             }
         }
+
+        Executors.newSingleThreadScheduledExecutor();
         return instance;
     }
 
+    public TMultiplexedProcessor getMultiplexedProcessor() {
+        return multiplexedProcessor;
+    }
 
-    public ExecutorService getWorkerExecutor(ApplicationConfig applicationConfig) {
+    public void registerProcessor(String name, TProcessor processor) {
+        if (Objects.isNull(multiplexedProcessor)) {
+            synchronized (this) {
+                if(Objects.isNull(multiplexedProcessor)) {
+                    multiplexedProcessor = new TMultiplexedProcessor();
+                }
+            }
+        }
+        multiplexedProcessor.registerProcessor(name, processor);
+    }
+
+    public void scheduleWithFixedDelay(Runnable runnable, Long delay) {
+        if (Objects.isNull(scheduledExecutorService)) {
+            synchronized (this) {
+                if(Objects.isNull(scheduledExecutorService)) {
+                    scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+                }
+            }
+        }
+        scheduledExecutorService.scheduleWithFixedDelay(runnable, delay, delay, TimeUnit.SECONDS);
+    }
+
+
+    public ExecutorService getWorkerExecutor(ProviderConfig applicationConfig) {
         if(Objects.isNull(workerExecutor)) {
             synchronized (this) {
                 if(Objects.isNull(workerExecutor)) {
