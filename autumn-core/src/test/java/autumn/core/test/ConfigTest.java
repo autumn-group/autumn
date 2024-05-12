@@ -21,11 +21,12 @@ public class ConfigTest {
         log.info("==============={}", result);
     }
 
+    @Test
     void test2() {
         ApplicationConfig config = new ApplicationConfig();
         config.setName("hello");
-        config.setPort(30880);
 
-
+        String ipAddress = CommonUtil.getHostIpAddress();
+        log.info("============ip:{}", ipAddress);
     }
 }

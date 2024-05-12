@@ -9,7 +9,4 @@ import lombok.Data;
 @Data
 public class ApplicationConfig {
     private String name;
-    private Boolean registered;
-    private Boolean discovered;
-
 }
