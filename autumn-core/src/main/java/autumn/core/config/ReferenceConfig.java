@@ -8,5 +8,7 @@ import lombok.Data;
  */
 @Data
 public class ReferenceConfig {
-
+    private String name;
+    private String ip;
+    private Integer port;
 }

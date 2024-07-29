@@ -38,26 +38,29 @@ public final class AutumnPool {
         return singleton;
     }
 
-    public <T> ConcurrentBagEntry<T> getConnection(String service) {
-        ConcurrentBag bagEntry = connectionFactory.getBag(service);
-        Long timeout = 1000L;
-        if(timeouts.containsKey(service)) {
-            timeout = timeouts.get(service);
-        }
-        try {
-            ConcurrentBagEntry<T> entry = bagEntry.borrow(timeout, TimeUnit.MILLISECONDS);
-            return entry;
-        } catch (InterruptedException e) {
-            throw new AutumnException("Autumn Pool Get Connection timeout", e);
-        }
-    }
 
-    public void release(String service, ConcurrentBagEntry entry) {
-        connectionFactory.release(service, entry);
-    }
 
-    public void evict(String service, ConcurrentBagEntry entry) {
-        connectionFactory.evictEntry(service, entry);
-    }
+
+//    public <T> ConcurrentBagEntry<T> getConnection(String service) {
+//        ConcurrentBag bagEntry = connectionFactory.getBag(service);
+//        Long timeout = 1000L;
+//        if(timeouts.containsKey(service)) {
+//            timeout = timeouts.get(service);
+//        }
+//        try {
+//            ConcurrentBagEntry<T> entry = bagEntry.borrow(timeout, TimeUnit.MILLISECONDS);
+//            return entry;
+//        } catch (InterruptedException e) {
+//            throw new AutumnException("Autumn Pool Get Connection timeout", e);
+//        }
+//    }
+//
+//    public void release(String service, ConcurrentBagEntry entry) {
+//        connectionFactory.release(service, entry);
+//    }
+//
+//    public void evict(String service, ConcurrentBagEntry entry) {
+//        connectionFactory.evictEntry(service, entry);
+//    }
 
 }
