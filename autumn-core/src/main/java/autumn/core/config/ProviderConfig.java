@@ -13,4 +13,6 @@ public class ProviderConfig {
     private Integer minThreads;
     private Integer maxThreads;
     private Integer workerKeepAliveTime;
+    private Integer threadQueueSize;
+    private Integer timeout;
 }

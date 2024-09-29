@@ -1,6 +1,8 @@
 package autumn.core;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -16,6 +18,7 @@ import org.apache.thrift.transport.layered.TFramedTransport;
 import autumn.core.config.ApplicationConfig;
 import autumn.core.config.ProviderConfig;
 import autumn.core.config.RegistryConfig;
+import autumn.core.extension.AttachableProcessor;
 import autumn.core.util.AutumnException;
 import autumn.core.util.CommonUtil;
 import autumn.core.util.Singleton;
@@ -32,6 +35,8 @@ public class AutumnBootstrap {
     private ApplicationConfig applicationConfig;
     private ProviderConfig providerConfig;
     private RegistryConfig registryConfig;
+    private TMultiplexedProcessor processor;
+    private Map<String, AttachableProcessor> services = new ConcurrentHashMap<>();
 
     private AutumnBootstrap() {}
 
@@ -60,7 +65,6 @@ public class AutumnBootstrap {
 
     public void setProviderConfig(ProviderConfig providerConfig) {
         this.providerConfig = providerConfig;
-        handleDefaultProviderConfig(providerConfig);
     }
 
     public RegistryConfig getRegistryConfig() {
@@ -69,10 +73,13 @@ public class AutumnBootstrap {
 
     public void setRegistryConfig(RegistryConfig registryConfig) {
         this.registryConfig = registryConfig;
-        handleDefaultRegistryConfig(registryConfig);
     }
 
     private void handleDefaultRegistryConfig(RegistryConfig registryConfig) {
+        if(Objects.isNull(registryConfig)) {
+            registryConfig = new RegistryConfig();
+        }
+
         String ipAddress = CommonUtil.getHostIpAddress();
         String name = applicationConfig.getName();
         String instanceId = name.concat(":")
@@ -93,7 +100,7 @@ public class AutumnBootstrap {
 
     private void handleDefaultProviderConfig(ProviderConfig providerConfig) {
         if(Objects.isNull(providerConfig)) {
-            return;
+            providerConfig = new ProviderConfig();
         }
         Integer minThreads = providerConfig.getMinThreads();
         Integer maxThreads = providerConfig.getMaxThreads();
@@ -102,9 +109,17 @@ public class AutumnBootstrap {
         if(Objects.isNull(minThreads)) {
             minThreads = 0;
         }
-
         if(Objects.isNull(maxThreads)) {
             maxThreads = Runtime.getRuntime().availableProcessors();;
+        }
+        if(Objects.isNull(workerKeepAliveTime)) {
+            workerKeepAliveTime = 60;
+        }
+        if(Objects.isNull(providerConfig.getTimeout())) {
+            providerConfig.setTimeout(3);
+        }
+        if(Objects.isNull(providerConfig.getThreadQueueSize())) {
+            providerConfig.setThreadQueueSize(10);
         }
 
         minThreads = (minThreads >= 0? minThreads: 0);
@@ -117,10 +132,27 @@ public class AutumnBootstrap {
         providerConfig.setMinThreads(minThreads);
         providerConfig.setMaxThreads(maxThreads);
         providerConfig.setWorkerKeepAliveTime(workerKeepAliveTime);
+
     }
 
     public TServer getServer() {
         return server;
+    }
+
+    public void export(String name, AttachableProcessor serviceProcessor) {
+        if(Objects.isNull(processor)) {
+            processor = new TMultiplexedProcessor();
+        }
+        if(!services.containsKey(name)) {
+            return;
+        }
+
+        services.put(name, serviceProcessor);
+        processor.registerProcessor(name, serviceProcessor);
+    }
+
+    public Map<String, AttachableProcessor> getServices() {
+        return services;
     }
 
     public void serve() {
@@ -129,12 +161,18 @@ public class AutumnBootstrap {
     }
 
     private void start() {
+        handleDefaultProviderConfig(providerConfig);
+        handleDefaultRegistryConfig(registryConfig);
         if(Objects.isNull(applicationConfig)) {
-            throw new AutumnException("must config application");
+            throw new AutumnException("must config application!");
         }
 
         if(Objects.isNull(providerConfig)) {
-            throw new AutumnException("must config service");
+            throw new AutumnException("must config service!");
+        }
+
+        if(services.isEmpty()) {
+            throw new AutumnException("must export one service at lease!");
         }
 
         Singleton singleton = Singleton.getInstance();
@@ -142,7 +180,6 @@ public class AutumnBootstrap {
         try {
             TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(providerConfig.getPort());
             TThreadedSelectorServer.Args tArgs = new TThreadedSelectorServer.Args(serverTransport);
-            TMultiplexedProcessor processor = singleton.getMultiplexedProcessor();
             tArgs.transportFactory(new TFramedTransport.Factory());
             tArgs.protocolFactory(new TBinaryProtocol.Factory());
             tArgs.executorService(executorService);
@@ -167,11 +204,6 @@ public class AutumnBootstrap {
             return;
         }
     }
-
-    private void reference() {
-
-    }
-
 
 
 }
