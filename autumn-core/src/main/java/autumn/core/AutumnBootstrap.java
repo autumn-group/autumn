@@ -2,6 +2,7 @@ package autumn.core;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -145,6 +146,9 @@ public class AutumnBootstrap {
             tArgs.transportFactory(new TFramedTransport.Factory());
             tArgs.protocolFactory(new TBinaryProtocol.Factory());
             tArgs.executorService(executorService);
+            tArgs.acceptQueueSizePerThread(10);
+            tArgs.stopTimeoutVal(3);
+            tArgs.stopTimeoutUnit(TimeUnit.SECONDS);
             tArgs.processor(processor);
             server = new TThreadedSelectorServer(tArgs);
             server.serve();
@@ -162,8 +166,6 @@ public class AutumnBootstrap {
             log.info("autumn not config register-info, not registry");
             return;
         }
-
-
     }
 
     private void reference() {

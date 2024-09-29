@@ -96,31 +96,10 @@ public class Singleton {
 
         @Override
         public Thread newThread(Runnable r) {
-            Thread newThread = new ThreadWithGarbageCleanup(r);
+            Thread newThread = new Thread(r);
             newThread.setName(namePrefix + ":Thread-" + newThread.getId());
             return newThread;
         }
     }
-
-    class ThreadWithGarbageCleanup extends Thread {
-        public static final Logger log = LoggerFactory.getLogger(ThreadWithGarbageCleanup.class);
-        public ThreadWithGarbageCleanup(){
-
-        }
-
-        public ThreadWithGarbageCleanup(Runnable runnable){
-            super(runnable);
-        }
-
-        @Override
-        protected void finalize() throws Throwable {
-            if(log.isDebugEnabled()) {
-                log.debug("clean-up thread: {}", super.getName());
-            }
-            super.finalize();
-        }
-    }
-
-
 
 }
