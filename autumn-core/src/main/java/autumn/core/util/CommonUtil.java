@@ -162,6 +162,38 @@ public class CommonUtil {
         return null;
     }
 
+    public static NetworkInterface getNetIf() {
+        try {
+            Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+            while (allNetInterfaces.hasMoreElements()) {
+                NetworkInterface netInterface =  allNetInterfaces.nextElement();
+                if (netInterface.isLoopback() || netInterface.isVirtual() || !netInterface.isUp()) {
+                    continue;
+                }
+
+                if (!netInterface.getDisplayName().contains("Intel")
+                        && !netInterface.getDisplayName().contains("Realtek")
+                        && !netInterface.getDisplayName().contains("Atheros")
+                        && !netInterface.getDisplayName().contains("Broadcom")) {
+                    continue;
+                }
+                Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress ip = addresses.nextElement();
+                    if (ip != null) {
+                        if (ip instanceof Inet4Address) {
+                            return netInterface;
+                        }
+                    }
+                }
+                break;
+            }
+        } catch (SocketException e) {
+            e.getMessage();
+        }
+        return null;
+    }
+
     public static String doPut(String url, Map<String, String> uriParams, String json) {
         String result = null;
         HttpPut httpPut = new HttpPut(url);

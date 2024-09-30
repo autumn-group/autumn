@@ -1,9 +1,9 @@
 package autumn.core.pool.impl;
 
-import autumn.core.pool.AutumnPool;
-
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import autumn.core.pool.AutumnPool;
 
 public class ConcurrentBagEntryImpl<T> implements ConcurrentBagEntry{
     private final AtomicInteger state =  new AtomicInteger(STATE_NOT_IN_USE);
@@ -41,7 +41,7 @@ public class ConcurrentBagEntryImpl<T> implements ConcurrentBagEntry{
     @Override
     public void close() {
         AutumnPool pool = AutumnPool.getInstance();
-        pool.release(this.service,this);
+
     }
 
     @Override
