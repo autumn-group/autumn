@@ -45,11 +45,7 @@ public class ConverterUtil {
                     .concat(provider.getName())
                     .concat("&");
         }
-        if(Objects.isNull(provider.getThread())) {
-            queryString = queryString.concat("thread=")
-                    .concat(provider.getThread().toString())
-                    .concat("&");
-        }
+
         if(Objects.isNull(provider.getPort())) {
             queryString = queryString.concat("port=")
                     .concat(provider.getPort().toString())
@@ -77,10 +73,6 @@ public class ConverterUtil {
         if(mapping.containsKey("port")) {
             Integer port = Integer.valueOf(mapping.get("port"));
             provider.setPort(port);
-        }
-        if(mapping.containsKey("thread")) {
-            Integer thread = Integer.valueOf(mapping.get("thread"));
-            provider.setThread(thread);
         }
         if(mapping.containsKey("name")) {
             String name = mapping.get("name");

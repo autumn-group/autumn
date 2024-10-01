@@ -1,20 +1,28 @@
 package autumn.core.util;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 
 import javax.net.ssl.SSLContext;
 
@@ -184,4 +192,58 @@ public class CommonUtil {
         return result;
     }
 
+    /**
+     * read config<br>
+     * <pre>
+     *     1、classpath
+     *     2、/opt/config/
+     * </pre>
+     * @param filename
+     * @return
+     */
+    public static Properties readClasspath(String filename) {
+        Path path = null;
+        URI uri = null;
+        URL url = CommonUtil.class.getClassLoader()
+                .getResource(filename);
+        if(Objects.isNull(url)) {
+            uri = new File("/opt/config/".concat(filename)).toURI();
+        } else {
+            try {
+                uri = url.toURI();
+            } catch (URISyntaxException e) {
+                log.info("url to uri exception: ", e);
+            }
+        }
+        path = Path.of(uri);
+        String content = "";
+        try {
+            content = Files.readString(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Reader reader = new StringReader(content);
+        Properties properties = new Properties();
+        try {
+            properties.load(reader);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return properties;
+    }
+
+    public static Map<String, String> getUrlParams(String queryString) {
+        Map<String, String> map = new HashMap<>(0);
+        if (Objects.isNull(queryString)) {
+            return map;
+        }
+        String[] params = queryString.split("&");
+        for (int i = 0; i < params.length; i++) {
+            String[] p = params[i].split("=");
+            if (p.length == 2) {
+                map.put(p[0], p[1]);
+            }
+        }
+        return map;
+    }
 }
