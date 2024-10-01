@@ -15,21 +15,21 @@ import autumn.core.config.ProviderConfig;
  * @author: baoxin.zhao
  * @date: 2024/5/8
  */
-public class Singleton {
-    private static volatile Singleton instance;
+public class ThreadUtil {
+    private static volatile ThreadUtil instance;
     private ExecutorService workerExecutor;
     private ScheduledExecutorService scheduledExecutorService;
     private static final String THREAD_POOL_NAME_WORKER = "autumn-thread-pool";
 
-    private Singleton() {
+    private ThreadUtil() {
 
     }
 
-    public static Singleton getInstance() {
+    public static ThreadUtil getInstance() {
         if(Objects.isNull(instance)) {
-            synchronized (Singleton.class) {
+            synchronized (ThreadUtil.class) {
                 if(Objects.isNull(instance)) {
-                    instance = new Singleton();
+                    instance = new ThreadUtil();
                 }
             }
         }

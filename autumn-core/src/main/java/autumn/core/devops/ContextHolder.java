@@ -23,9 +23,13 @@ public class ContextHolder {
     }
 
     public static void removeClient(String ip) {
-        if(clients.contains(ip)) {
+        if(!clients.contains(ip)) {
             return;
         }
         clients.remove(ip);
+    }
+
+    public static ConcurrentHashMap<String, Date> getClients() {
+        return clients;
     }
 }

@@ -21,7 +21,9 @@ import autumn.core.config.RegistryConfig;
 import autumn.core.extension.AttachableProcessor;
 import autumn.core.util.AutumnException;
 import autumn.core.util.CommonUtil;
-import autumn.core.util.Singleton;
+import autumn.core.util.ThreadUtil;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -29,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2024/5/8
  */
 @Slf4j
+@Setter
+@Getter
 public class AutumnBootstrap {
     private static volatile AutumnBootstrap instance;
     private TServer server;
@@ -49,30 +53,6 @@ public class AutumnBootstrap {
             }
         }
         return instance;
-    }
-
-    public ApplicationConfig getApplicationConfig() {
-        return applicationConfig;
-    }
-
-    public void setApplicationConfig(ApplicationConfig applicationConfig) {
-        this.applicationConfig = applicationConfig;
-    }
-
-    public ProviderConfig getProviderConfig() {
-        return providerConfig;
-    }
-
-    public void setProviderConfig(ProviderConfig providerConfig) {
-        this.providerConfig = providerConfig;
-    }
-
-    public RegistryConfig getRegistryConfig() {
-        return registryConfig;
-    }
-
-    public void setRegistryConfig(RegistryConfig registryConfig) {
-        this.registryConfig = registryConfig;
     }
 
     private void handleDefaultRegistryConfig(RegistryConfig registryConfig) {
@@ -175,7 +155,7 @@ public class AutumnBootstrap {
             throw new AutumnException("must export one service at lease!");
         }
 
-        Singleton singleton = Singleton.getInstance();
+        ThreadUtil singleton = ThreadUtil.getInstance();
         ExecutorService executorService = singleton.getWorkerExecutor(providerConfig);
         try {
             TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(providerConfig.getPort());

@@ -1,4 +1,4 @@
-package autumn.core.model.provider;
+package autumn.core.config.provider;
 
 import lombok.Data;
 import org.apache.thrift.TProcessor;

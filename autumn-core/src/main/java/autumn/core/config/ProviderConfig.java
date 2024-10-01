@@ -15,4 +15,7 @@ public class ProviderConfig {
     private Integer workerKeepAliveTime;
     private Integer threadQueueSize;
     private Integer timeout;
+    private Boolean enabled;
+    private Integer thread;
+    private String name;
 }

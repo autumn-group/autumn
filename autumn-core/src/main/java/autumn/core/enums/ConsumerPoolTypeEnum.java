@@ -1,4 +1,4 @@
-package autumn.core.model;
+package autumn.core.enums;
 
 import lombok.Getter;
 

@@ -1,9 +1,9 @@
-package autumn.core.model;
+package autumn.core.config;
 
 import lombok.Data;
 
 @Data
-public class Compiler {
+public class CompilerConfig {
     private String consumerPath;
     private String providerPath;
 
