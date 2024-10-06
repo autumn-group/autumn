@@ -65,9 +65,8 @@ public class MulticastDiscovery {
         Integer port = applicationConfig.getMulticastPort();
         socketAddress = new InetSocketAddress(ip, port);
         try {
-            socket = new MulticastSocket();
+            socket = new MulticastSocket(port);
             socket.setOption(IP_MULTICAST_LOOP, false);
-            //socket.setInterface(InetAddress.getByName(ip));
             checkMulticastAddress(InetAddress.getByName(ip));
             socket.joinGroup(socketAddress, CommonUtil.getNetIf());
         } catch (IOException e) {
