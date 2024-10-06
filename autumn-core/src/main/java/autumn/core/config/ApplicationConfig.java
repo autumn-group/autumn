@@ -48,7 +48,7 @@ public class ApplicationConfig {
 
         String multicast_ip = properties.getProperty("autumn.multicast.ip");
         if(Objects.isNull(multicast_ip) || multicast_ip.length() < 1) {
-            multicast_ip = "224.5.6.7";
+            multicast_ip = "228.5.6.7";
         }
         this.multicastIp = multicast_ip;
 

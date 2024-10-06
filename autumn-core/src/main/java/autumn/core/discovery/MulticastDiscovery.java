@@ -33,8 +33,6 @@ import static java.net.StandardSocketOptions.IP_MULTICAST_LOOP;
 @Getter
 public class MulticastDiscovery {
     private volatile static MulticastDiscovery singleton = null;
-    private MulticastSocket socket;
-    private SocketAddress socketAddress;
     private ConcurrentHashMap<String, ReferenceConfig> refers = new ConcurrentHashMap<>();
     private AtomicBoolean initStatus = new AtomicBoolean(false);
 
@@ -63,17 +61,13 @@ public class MulticastDiscovery {
         ApplicationConfig applicationConfig = ApplicationConfig.getInstance();
         String ip = applicationConfig.getMulticastIp();
         Integer port = applicationConfig.getMulticastPort();
-        socketAddress = new InetSocketAddress(ip, port);
+        InetSocketAddress socketAddress = new InetSocketAddress(ip, port);
         try {
-            socket = new MulticastSocket(port);
-            socket.setOption(IP_MULTICAST_LOOP, false);
-            checkMulticastAddress(InetAddress.getByName(ip));
-            socket.joinGroup(socketAddress, CommonUtil.getNetIf());
+            discovery(new MulticastSocket(port), socketAddress);
+            registry(new MulticastSocket(), socketAddress);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        discovery();
-        registry(socketAddress);
     }
 
     public void addRefer(String refer) {
@@ -99,20 +93,29 @@ public class MulticastDiscovery {
         consumers.add(consumerConfig);
     }
 
-    private void registry(SocketAddress socketAddress) {
+    private void registry(MulticastSocket socket, SocketAddress socketAddress) {
         ProviderConfig config = ProviderConfig.getInstance();
         String registryRequest = ConverterUtil.registryRequest(config);
         try {
+            //socket.setOption(IP_MULTICAST_LOOP, false);
+            socket.joinGroup(socketAddress, CommonUtil.getNetIf());
             byte[] buff = registryRequest.getBytes();
             DatagramPacket packet = new DatagramPacket(buff, buff.length, socketAddress);
             socket.send(packet);
             Arrays.fill(buff, (byte) 0);
         } catch (IOException e) {
+            log.warn("multicast registry exception:", e);
             throw new RuntimeException(e);
         }
     }
 
-    private void discovery() {
+    private void discovery(MulticastSocket socket, InetSocketAddress socketAddress) {
+        try {
+            socket.joinGroup(socketAddress, CommonUtil.getNetIf());
+        } catch (IOException e) {
+            log.warn("multicast discovery join-group exception: ", e);
+            throw new RuntimeException(e);
+        }
         Runnable runnable = () -> {
             try {
                 byte[] buff = new byte[2048];
