@@ -147,6 +147,7 @@ public class MulticastDiscovery {
         Thread thread = new Thread(runnable, "autumn-multicast-registry-receiver");
         thread.setDaemon(true);
         thread.start();
+        log.info("autumn-multicast-registry begin listening");
     }
 
     private void checkMulticastAddress(InetAddress multicastAddress) {
