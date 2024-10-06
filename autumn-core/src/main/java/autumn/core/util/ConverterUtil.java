@@ -43,7 +43,7 @@ public class ConverterUtil {
     }
 
     private static String handleUrlPath(Map<String, String> map, String urlPath) {
-        String[] params = urlPath.split("?");
+        String[] params = urlPath.split("\\?");
         if(params.length > 1) {
             String part_1 = params[0];
             map.put(CONSTANT_URL_PATH, part_1);
