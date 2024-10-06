@@ -96,7 +96,7 @@ public class ProviderConfig {
         this.name = appName;
 
         String _ip = properties.getProperty("autumn.provider.ip");
-        if(Objects.isNull(_ip) || _ip.length() > 0) {
+        if(Objects.nonNull(_ip) && _ip.length() > 0) {
             this.ip = _ip;
         } else {
             this.ip = CommonUtil.getHostIpAddress();

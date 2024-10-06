@@ -7,10 +7,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import autumn.core.config.ApplicationConfig;
@@ -77,7 +80,7 @@ public class MulticastDiscovery {
         ReferenceConfig referenceConfig = new ReferenceConfig();
         referenceConfig.setName(refer);
         referenceConfig.setNamespace("default");
-        referenceConfig.setInstances(new ConcurrentSkipListSet<>());
+        referenceConfig.setInstances(new CopyOnWriteArrayList<>());
         refers.put(refer, referenceConfig);
     }
 
@@ -86,7 +89,7 @@ public class MulticastDiscovery {
             addRefer(name);
         }
         ReferenceConfig referenceConfig = refers.get(name);
-        ConcurrentSkipListSet<ConsumerConfig> consumers = referenceConfig.getInstances();
+        List<ConsumerConfig> consumers = referenceConfig.getInstances();
         if(consumers.contains(consumerConfig)) {
             return;
         }
@@ -97,7 +100,6 @@ public class MulticastDiscovery {
         ProviderConfig config = ProviderConfig.getInstance();
         String registryRequest = ConverterUtil.registryRequest(config);
         try {
-            //socket.setOption(IP_MULTICAST_LOOP, false);
             socket.joinGroup(socketAddress, CommonUtil.getNetIf());
             byte[] buff = registryRequest.getBytes();
             DatagramPacket packet = new DatagramPacket(buff, buff.length, socketAddress);
