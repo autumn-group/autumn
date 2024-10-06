@@ -8,7 +8,7 @@ import lombok.Data;
  * @date: 2024/5/9
  */
 @Data
-public class RegistryConfig {
+public class ConsulConfig {
     /**
      * need registry consul
      */

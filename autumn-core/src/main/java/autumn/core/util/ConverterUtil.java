@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import autumn.core.config.ConsumerConfig;
 import autumn.core.config.ProviderConfig;
 
 /**
@@ -30,25 +31,24 @@ public class ConverterUtil {
         return map;
     }
 
-    public static String providerToQueryString(ProviderConfig provider) {
+    public static String convertToQueryString(ProviderConfig config) {
         String queryString = "";
-        if(Objects.isNull(provider)) {
+        if(Objects.isNull(config)) {
             return queryString;
         }
-        if(Objects.isNull(provider.getEnabled())) {
-            queryString = queryString.concat("enabled=")
-                    .concat(provider.getEnabled().toString())
-                    .concat("&");
-        }
-        if(Objects.isNull(provider.getName())) {
+        if(Objects.isNull(config.getName())) {
             queryString = queryString.concat("name=")
-                    .concat(provider.getName())
+                    .concat(config.getName())
                     .concat("&");
         }
-
-        if(Objects.isNull(provider.getPort())) {
+        if(Objects.isNull(config.getIp())) {
+            queryString = queryString.concat("ip=")
+                    .concat(config.getIp())
+                    .concat("&");
+        }
+        if(Objects.isNull(config.getPort())) {
             queryString = queryString.concat("port=")
-                    .concat(provider.getPort().toString())
+                    .concat(config.getPort().toString())
                     .concat("&");
         }
 
@@ -59,25 +59,24 @@ public class ConverterUtil {
         return queryString;
     }
 
-    public static ProviderConfig queryStringToProvider(String queryString) {
+    public static ConsumerConfig queryStringToProvider(String queryString) {
         Map<String, String> mapping = getUrlParams(queryString);
         if(mapping.isEmpty()) {
             return null;
         }
-
-        ProviderConfig provider = new ProviderConfig();
-        if(mapping.containsKey("enabled")) {
-            Boolean enabled = Boolean.valueOf(mapping.get("enabled"));
-            provider.setEnabled(enabled);
-        }
+        ConsumerConfig config = new ConsumerConfig();
         if(mapping.containsKey("port")) {
             Integer port = Integer.valueOf(mapping.get("port"));
-            provider.setPort(port);
+            config.setPort(port);
         }
         if(mapping.containsKey("name")) {
             String name = mapping.get("name");
-            provider.setName(name);
+            config.setName(name);
         }
-        return provider;
+        if(mapping.containsKey("ip")) {
+            String ip = mapping.get("ip");
+            config.setIp(ip);
+        }
+        return config;
     }
 }

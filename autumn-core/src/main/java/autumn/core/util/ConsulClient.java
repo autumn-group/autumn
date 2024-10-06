@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-
-import autumn.core.config.RegistryConfig;
 
 /**
  * @author: baoxin.zhao

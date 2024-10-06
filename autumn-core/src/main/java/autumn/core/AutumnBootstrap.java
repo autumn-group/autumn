@@ -17,7 +17,7 @@ import org.apache.thrift.transport.layered.TFramedTransport;
 
 import autumn.core.config.ApplicationConfig;
 import autumn.core.config.ProviderConfig;
-import autumn.core.config.RegistryConfig;
+import autumn.core.config.ConsulConfig;
 import autumn.core.extension.AttachableProcessor;
 import autumn.core.util.AutumnException;
 import autumn.core.util.CommonUtil;
@@ -38,7 +38,7 @@ public class AutumnBootstrap {
     private TServer server;
     private ApplicationConfig applicationConfig;
     private ProviderConfig providerConfig;
-    private RegistryConfig registryConfig;
+    private ConsulConfig registryConfig;
     private TMultiplexedProcessor processor;
     private Map<String, AttachableProcessor> services = new ConcurrentHashMap<>();
 
@@ -55,9 +55,9 @@ public class AutumnBootstrap {
         return instance;
     }
 
-    private void handleDefaultRegistryConfig(RegistryConfig registryConfig) {
+    private void handleDefaultRegistryConfig(ConsulConfig registryConfig) {
         if(Objects.isNull(registryConfig)) {
-            registryConfig = new RegistryConfig();
+            registryConfig = new ConsulConfig();
         }
 
         String ipAddress = CommonUtil.getHostIpAddress();
