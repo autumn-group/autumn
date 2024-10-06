@@ -98,65 +98,15 @@ public class CommonUtil {
     }
 
     public static String getHostIpAddress() {
-        try {
-            Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (allNetInterfaces.hasMoreElements()) {
-                NetworkInterface netInterface =  allNetInterfaces.nextElement();
-                if (netInterface.isLoopback() || netInterface.isVirtual() || !netInterface.isUp()) {
-                    continue;
+        NetworkInterface netInterface = getNetIf();
+        Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
+        while (addresses.hasMoreElements()) {
+            InetAddress ip = addresses.nextElement();
+            if (ip != null) {
+                if (ip instanceof Inet4Address) {
+                    return ip.getHostAddress();
                 }
-
-                if (!netInterface.getDisplayName().contains("Intel")
-                        && !netInterface.getDisplayName().contains("Realtek")
-                        && !netInterface.getDisplayName().contains("Atheros")
-                        && !netInterface.getDisplayName().contains("Broadcom")) {
-                    continue;
-                }
-                Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    InetAddress ip = addresses.nextElement();
-                    if (ip != null) {
-                        if (ip instanceof Inet4Address) {
-                            return ip.getHostAddress();
-                        }
-                    }
-                }
-                break;
             }
-        } catch (SocketException e) {
-            e.getMessage();
-        }
-        return null;
-    }
-
-    public static InetAddress getInetAddress() {
-        try {
-            Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (allNetInterfaces.hasMoreElements()) {
-                NetworkInterface netInterface =  allNetInterfaces.nextElement();
-                if (netInterface.isLoopback() || netInterface.isVirtual() || !netInterface.isUp()) {
-                    continue;
-                }
-
-                if (!netInterface.getDisplayName().contains("Intel")
-                        && !netInterface.getDisplayName().contains("Realtek")
-                        && !netInterface.getDisplayName().contains("Atheros")
-                        && !netInterface.getDisplayName().contains("Broadcom")) {
-                    continue;
-                }
-                Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    InetAddress ip = addresses.nextElement();
-                    if (ip != null) {
-                        if (ip instanceof Inet4Address) {
-                            return ip;
-                        }
-                    }
-                }
-                break;
-            }
-        } catch (SocketException e) {
-            e.getMessage();
         }
         return null;
     }
@@ -177,6 +127,9 @@ public class CommonUtil {
                     continue;
                 }
                 Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
+                if(!addresses.hasMoreElements()) {
+                    continue;
+                }
                 while (addresses.hasMoreElements()) {
                     InetAddress ip = addresses.nextElement();
                     if (ip != null) {
