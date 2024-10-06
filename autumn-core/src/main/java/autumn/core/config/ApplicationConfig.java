@@ -47,10 +47,11 @@ public class ApplicationConfig {
         this.registryType = registry_type;
 
         String multicast_ip = properties.getProperty("autumn.multicast.ip");
-        if(Objects.isNull(registryType) || registryType.length() < 1) {
+        if(Objects.isNull(multicast_ip) || multicast_ip.length() < 1) {
             multicast_ip = "224.5.6.7";
         }
         this.multicastIp = multicast_ip;
+
         String multicast_port = properties.getProperty("autumn.multicast.port");
         if(Objects.isNull(multicast_port) || multicast_port.length() < 1) {
             multicast_port = "1234";

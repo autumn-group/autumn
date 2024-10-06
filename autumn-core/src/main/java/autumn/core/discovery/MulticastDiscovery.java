@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketAddress;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,7 +20,6 @@ import autumn.core.config.ReferenceConfig;
 import autumn.core.pool.AutumnPool;
 import autumn.core.util.CommonUtil;
 import autumn.core.util.ConverterUtil;
-import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,9 +33,8 @@ import static java.net.StandardSocketOptions.IP_MULTICAST_LOOP;
 @Getter
 public class MulticastDiscovery {
     private volatile static MulticastDiscovery singleton = null;
-    private String ip;
-    private Integer port;
     private MulticastSocket socket;
+    private SocketAddress socketAddress;
     private ConcurrentHashMap<String, ReferenceConfig> refers = new ConcurrentHashMap<>();
     private AtomicBoolean initStatus = new AtomicBoolean(false);
 
@@ -62,15 +61,14 @@ public class MulticastDiscovery {
         }
         initStatus.compareAndSet(false, true);
         ApplicationConfig applicationConfig = ApplicationConfig.getInstance();
-        InetAddress inetAddress = CommonUtil.getInetAddress();
-        this.ip = applicationConfig.getMulticastIp();
-        this.port = applicationConfig.getMulticastPort();
-        SocketAddress socketAddress = new InetSocketAddress(ip, port);
+        String ip = applicationConfig.getMulticastIp();
+        Integer port = applicationConfig.getMulticastPort();
+        socketAddress = new InetSocketAddress(ip, port);
         try {
-            socket = new MulticastSocket(port);
+            socket = new MulticastSocket();
             socket.setOption(IP_MULTICAST_LOOP, false);
-            socket.setInterface(inetAddress);
-            checkMulticastAddress(inetAddress);
+            //socket.setInterface(InetAddress.getByName(ip));
+            checkMulticastAddress(InetAddress.getByName(ip));
             socket.joinGroup(socketAddress, CommonUtil.getNetIf());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -104,11 +102,12 @@ public class MulticastDiscovery {
 
     private void registry(SocketAddress socketAddress) {
         ProviderConfig config = ProviderConfig.getInstance();
-        String info = ConverterUtil.convertToQueryString(config);
+        String registryRequest = ConverterUtil.registryRequest(config);
         try {
-            byte[] buff = info.getBytes();
+            byte[] buff = registryRequest.getBytes();
             DatagramPacket packet = new DatagramPacket(buff, buff.length, socketAddress);
             socket.send(packet);
+            Arrays.fill(buff, (byte) 0);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -119,7 +118,7 @@ public class MulticastDiscovery {
             try {
                 byte[] buff = new byte[2048];
                 DatagramPacket packet = new DatagramPacket(buff, buff.length);
-                String ip = packet.getAddress().getHostAddress();
+
                 while (!socket.isClosed()) {
                     socket.receive(packet);
                     String data = new String(packet.getData()).trim();
@@ -127,7 +126,17 @@ public class MulticastDiscovery {
                     if (i > 0) {
                         data = data.substring(0, i).trim();
                     }
+                    String ip = packet.getAddress().getHostAddress();
                     receive(ip, data);
+                    Map<String, String> params = CommonUtil.getUrlParams(data);
+                    if(ConverterUtil.MULTICAST_REQUEST.equals(params.get(ConverterUtil.CONSTANT_URL_PATH))) {
+                        ProviderConfig config = ProviderConfig.getInstance();
+                        String registryResponse = ConverterUtil.registryResponse(config);
+                        byte[] sendBuff = registryResponse.getBytes();
+                        DatagramPacket sendPacket = new DatagramPacket(sendBuff, sendBuff.length, socketAddress);
+                        socket.send(sendPacket);
+                        Arrays.fill(sendBuff, (byte) 0);
+                    }
                     Arrays.fill(buff, (byte) 0);
                 }
             } catch (IOException e) {

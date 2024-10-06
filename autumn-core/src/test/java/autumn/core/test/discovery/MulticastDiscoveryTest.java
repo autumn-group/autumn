@@ -1,5 +1,6 @@
 package autumn.core.test.discovery;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -37,6 +38,7 @@ public class MulticastDiscoveryTest {
     }
 
 
+    @Test
     void init() {
         Properties properties = CommonUtil.readClasspath("application.properties");
         ApplicationConfig applicationConfig = ApplicationConfig.getInstance();
@@ -45,6 +47,12 @@ public class MulticastDiscoveryTest {
         providerConfig.init(properties);
         MulticastDiscovery multicastDiscovery = MulticastDiscovery.getInstance();
         multicastDiscovery.init();
+
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
