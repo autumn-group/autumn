@@ -58,11 +58,13 @@ public class MulticastDiscovery {
         ApplicationConfig applicationConfig = ApplicationConfig.getInstance();
         String ip = applicationConfig.getMulticastIp();
         Integer port = applicationConfig.getMulticastPort();
+
         try {
             mc = new MulticastSocket(port);
             InetAddress group = InetAddress.getByName(ip);
+            MulticastSocket mcs = new MulticastSocket(port);
             discovery(mc, group, port);
-            registry(mc, group, port);
+            registry(mcs, group, port);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
