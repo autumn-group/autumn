@@ -4,15 +4,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.SocketAddress;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,8 +22,6 @@ import autumn.core.util.ConverterUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import static java.net.StandardSocketOptions.IP_MULTICAST_LOOP;
-
 /**
  * @author: baoxin.zhao
  * @date: 2024/9/30
@@ -38,7 +32,7 @@ public class MulticastDiscovery {
     private volatile static MulticastDiscovery singleton = null;
     private ConcurrentHashMap<String, ReferenceConfig> refers = new ConcurrentHashMap<>();
     private AtomicBoolean initStatus = new AtomicBoolean(false);
-
+    private MulticastSocket mc;
     private MulticastDiscovery() {
 
     }
@@ -64,10 +58,11 @@ public class MulticastDiscovery {
         ApplicationConfig applicationConfig = ApplicationConfig.getInstance();
         String ip = applicationConfig.getMulticastIp();
         Integer port = applicationConfig.getMulticastPort();
-        InetSocketAddress socketAddress = new InetSocketAddress(ip, port);
         try {
-            discovery(new MulticastSocket(port), socketAddress);
-            registry(new MulticastSocket(), socketAddress);
+            mc = new MulticastSocket(port);
+            InetAddress group = InetAddress.getByName(ip);
+            discovery(mc, group, port);
+            registry(mc, group, port);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -96,55 +91,68 @@ public class MulticastDiscovery {
         consumers.add(consumerConfig);
     }
 
-    private void registry(MulticastSocket socket, SocketAddress socketAddress) {
+    private void registry(MulticastSocket ms, InetAddress group, Integer port) {
         ProviderConfig config = ProviderConfig.getInstance();
         String registryRequest = ConverterUtil.registryRequest(config);
         try {
-            socket.joinGroup(socketAddress, CommonUtil.getNetIf());
-            byte[] buff = registryRequest.getBytes();
-            DatagramPacket packet = new DatagramPacket(buff, buff.length, socketAddress);
-            socket.send(packet);
-            Arrays.fill(buff, (byte) 0);
-        } catch (IOException e) {
-            log.warn("multicast registry exception:", e);
-            throw new RuntimeException(e);
+            ms.joinGroup(group);
+            byte[] buffer = registryRequest.getBytes();
+            DatagramPacket dp = new DatagramPacket(buffer, buffer.length, group, port);
+            ms.send(dp);
+            Arrays.fill(buffer, (byte) 0);
+        } catch (Exception e) {
+            log.warn("autumn-multicast-registry receive exception: ", e);
+        } finally {
+            if (ms != null) {
+                try {
+                    ms.leaveGroup(group);
+                    ms.close();
+                } catch (IOException e) {
+                    log.warn("autumn-multicast-registry receive exception: ", e);
+                }
+
+            }
         }
     }
 
-    private void discovery(MulticastSocket socket, InetSocketAddress socketAddress) {
-        try {
-            socket.joinGroup(socketAddress, CommonUtil.getNetIf());
-        } catch (IOException e) {
-            log.warn("multicast discovery join-group exception: ", e);
-            throw new RuntimeException(e);
-        }
+    private void discovery(MulticastSocket ms, InetAddress group, Integer port) {
         Runnable runnable = () -> {
             try {
-                byte[] buff = new byte[2048];
-                DatagramPacket packet = new DatagramPacket(buff, buff.length);
-
-                while (!socket.isClosed()) {
-                    socket.receive(packet);
-                    String data = new String(packet.getData()).trim();
+                ms.joinGroup(group);
+                byte[] buffer = new byte[8192];
+                while (true) {
+                    DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
+                    ms.receive(dp);
+                    String ip = dp.getAddress().getHostAddress();
+                    String data = new String(dp.getData(), 0, dp.getLength());
                     int i = data.indexOf('\n');
                     if (i > 0) {
                         data = data.substring(0, i).trim();
                     }
-                    String ip = packet.getAddress().getHostAddress();
                     receive(ip, data);
+                    Arrays.fill(buffer, (byte) 0);
+
                     Map<String, String> params = CommonUtil.getUrlParams(data);
                     if(ConverterUtil.MULTICAST_REQUEST.equals(params.get(ConverterUtil.CONSTANT_URL_PATH))) {
                         ProviderConfig config = ProviderConfig.getInstance();
                         String registryResponse = ConverterUtil.registryResponse(config);
                         byte[] sendBuff = registryResponse.getBytes();
-                        DatagramPacket sendPacket = new DatagramPacket(sendBuff, sendBuff.length, socketAddress);
-                        socket.send(sendPacket);
+                        DatagramPacket sendPacket = new DatagramPacket(sendBuff, sendBuff.length, group, port);
+                        mc.send(sendPacket);
                         Arrays.fill(sendBuff, (byte) 0);
                     }
-                    Arrays.fill(buff, (byte) 0);
                 }
             } catch (IOException e) {
-                log.warn("multicast discovery registry receive fail: ", e);
+                log.warn("autumn-multicast-discovery receive exception: ", e);
+            } finally {
+                if (ms != null) {
+                    try {
+                        ms.leaveGroup(group);
+                        ms.close();
+                    } catch (IOException e) {
+                        log.warn("autumn-multicast-discovery receive exception: ", e);
+                    }
+                }
             }
         };
 

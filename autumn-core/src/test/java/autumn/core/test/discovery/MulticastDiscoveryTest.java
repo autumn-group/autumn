@@ -1,8 +1,6 @@
 package autumn.core.test.discovery;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -14,7 +12,6 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestTemplate;
 
 import autumn.core.config.ApplicationConfig;
 import autumn.core.config.ProviderConfig;
@@ -214,6 +211,8 @@ public class MulticastDiscoveryTest {
                 ms.receive(dp);
                 String s = new String(dp.getData(), 0, dp.getLength());
                 System.out.println(s);
+                DatagramPacket w = new DatagramPacket(buffer, buffer.length);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
