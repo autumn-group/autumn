@@ -18,7 +18,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -215,20 +214,5 @@ public class CommonUtil {
             throw new RuntimeException(e);
         }
         return properties;
-    }
-
-    public static Map<String, String> getUrlParams(String queryString) {
-        Map<String, String> map = new HashMap<>(0);
-        if (Objects.isNull(queryString)) {
-            return map;
-        }
-        String[] params = queryString.split("&");
-        for (int i = 0; i < params.length; i++) {
-            String[] p = params[i].split("=");
-            if (p.length == 2) {
-                map.put(p[0], p[1]);
-            }
-        }
-        return map;
     }
 }

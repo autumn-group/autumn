@@ -134,7 +134,7 @@ public class MulticastDiscovery {
                     receive(ip, data);
                     Arrays.fill(buffer, (byte) 0);
 
-                    Map<String, String> params = CommonUtil.getUrlParams(data);
+                    Map<String, String> params = ConverterUtil.getUrlParams(data);
                     if(ConverterUtil.MULTICAST_REQUEST.equals(params.get(ConverterUtil.CONSTANT_URL_PATH))) {
                         ProviderConfig config = ProviderConfig.getInstance();
                         String registryResponse = ConverterUtil.registryResponse(config);
