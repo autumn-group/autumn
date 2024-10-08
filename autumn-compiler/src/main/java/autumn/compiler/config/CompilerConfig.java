@@ -1,4 +1,4 @@
-package autumn.core.config;
+package autumn.compiler.config;
 
 import lombok.Data;
 

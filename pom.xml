@@ -5,6 +5,7 @@
         <module>autumn-api</module>
         <module>autumn-compiler</module>
         <module>autumn-core</module>
+        <module>autumn-sample</module>
     </modules>
 
     <parent>
@@ -40,6 +41,7 @@
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <fastjson.version>2.0.53</fastjson.version>
         <commons-collections4.version>4.4</commons-collections4.version>
+        <javax-annotation-api.version>1.3.2</javax-annotation-api.version>
     </properties>
 
     <dependencies>
@@ -83,6 +85,13 @@
     </dependencies>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${javax-annotation-api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
