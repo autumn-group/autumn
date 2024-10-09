@@ -1,4 +1,4 @@
-namespace java autumn.api
+namespace java autumn.sample.api
 struct User {
     1: required i32 userId;
     2: required string username;

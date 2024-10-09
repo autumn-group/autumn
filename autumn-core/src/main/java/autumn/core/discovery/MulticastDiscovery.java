@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import autumn.core.config.ApplicationConfig;
@@ -17,7 +16,6 @@ import autumn.core.config.ConsumerConfig;
 import autumn.core.config.ProviderConfig;
 import autumn.core.config.ReferenceConfig;
 import autumn.core.pool.AutumnPool;
-import autumn.core.util.CommonUtil;
 import autumn.core.util.ConverterUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -70,20 +68,16 @@ public class MulticastDiscovery {
         }
     }
 
-    public void addRefer(String refer) {
+    public void addRefer(String refer, ReferenceConfig referenceConfig) {
         if(refers.contains(refer)) {
             return;
         }
-        ReferenceConfig referenceConfig = new ReferenceConfig();
-        referenceConfig.setName(refer);
-        referenceConfig.setNamespace("default");
-        referenceConfig.setInstances(new CopyOnWriteArrayList<>());
         refers.put(refer, referenceConfig);
     }
 
-    public void addInstance(String name, ConsumerConfig consumerConfig) {
+    private void addInstance(String name, ConsumerConfig consumerConfig) {
         if(!refers.contains(name)) {
-            addRefer(name);
+            return;
         }
         ReferenceConfig referenceConfig = refers.get(name);
         List<ConsumerConfig> consumers = referenceConfig.getInstances();

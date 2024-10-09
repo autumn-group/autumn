@@ -1,5 +1,7 @@
 package autumn.core;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -7,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.thrift.TMultiplexedProcessor;
+import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadedSelectorServer;
@@ -16,8 +19,11 @@ import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.layered.TFramedTransport;
 
 import autumn.core.config.ApplicationConfig;
-import autumn.core.config.ProviderConfig;
 import autumn.core.config.ConsulConfig;
+import autumn.core.config.ProviderConfig;
+import autumn.core.config.ReferenceConfig;
+import autumn.core.config.ServiceConfig;
+import autumn.core.discovery.MulticastDiscovery;
 import autumn.core.extension.AttachableProcessor;
 import autumn.core.util.AutumnException;
 import autumn.core.util.CommonUtil;
@@ -40,8 +46,7 @@ public class AutumnBootstrap {
     private ProviderConfig providerConfig;
     private ConsulConfig registryConfig;
     private TMultiplexedProcessor processor;
-    private Map<String, AttachableProcessor> services = new ConcurrentHashMap<>();
-
+    private Map<Class, ServiceConfig> services = new ConcurrentHashMap<>();
     private AutumnBootstrap() {}
 
     public static AutumnBootstrap getInstance() {
@@ -119,28 +124,23 @@ public class AutumnBootstrap {
         return server;
     }
 
-    public void export(String name, AttachableProcessor serviceProcessor) {
+    private void export(String name, AttachableProcessor serviceProcessor) {
         if(Objects.isNull(processor)) {
             processor = new TMultiplexedProcessor();
         }
         if(!services.containsKey(name)) {
             return;
         }
-
-        services.put(name, serviceProcessor);
         processor.registerProcessor(name, serviceProcessor);
     }
 
-    public Map<String, AttachableProcessor> getServices() {
-        return services;
-    }
 
     public void serve() {
         start();
         registry();
     }
 
-    private void start() {
+    public void start() {
         handleDefaultProviderConfig(providerConfig);
         handleDefaultRegistryConfig(registryConfig);
         if(Objects.isNull(applicationConfig)) {
@@ -185,5 +185,24 @@ public class AutumnBootstrap {
         }
     }
 
+    public <T> AutumnBootstrap service(ServiceConfig<T> serviceConfig) {
+        export(serviceConfig.getInterfaceClass().getName(), serviceConfig.getRef());
+        services.put(serviceConfig.getInterfaceClass(), serviceConfig);
+        return this;
+    }
 
+    public <T extends TServiceClient> AutumnBootstrap reference(ReferenceConfig<T> referenceConfig) {
+        MulticastDiscovery multicastDiscovery = MulticastDiscovery.getInstance();
+        multicastDiscovery.addRefer(referenceConfig.getName(), referenceConfig);
+        return this;
+    }
+
+    public <T extends TServiceClient> T getClient(T interfaceClass) {
+
+        return null;
+    }
+
+    public <T extends TServiceClient> void release(T interfaceClass) {
+
+    }
 }
