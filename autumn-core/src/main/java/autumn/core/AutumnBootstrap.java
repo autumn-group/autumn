@@ -1,7 +1,5 @@
 package autumn.core;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -193,16 +191,8 @@ public class AutumnBootstrap {
 
     public <T extends TServiceClient> AutumnBootstrap reference(ReferenceConfig<T> referenceConfig) {
         MulticastDiscovery multicastDiscovery = MulticastDiscovery.getInstance();
-        multicastDiscovery.addRefer(referenceConfig.getName(), referenceConfig);
+        multicastDiscovery.addRefer(referenceConfig.getInterfaceClass(), referenceConfig);
         return this;
     }
 
-    public <T extends TServiceClient> T getClient(T interfaceClass) {
-
-        return null;
-    }
-
-    public <T extends TServiceClient> void release(T interfaceClass) {
-
-    }
 }

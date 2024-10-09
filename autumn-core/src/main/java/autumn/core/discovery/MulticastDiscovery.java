@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.thrift.TServiceClient;
+
 import autumn.core.config.ApplicationConfig;
 import autumn.core.config.ConsumerConfig;
 import autumn.core.config.ProviderConfig;
@@ -28,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 public class MulticastDiscovery {
     private volatile static MulticastDiscovery singleton = null;
-    private ConcurrentHashMap<String, ReferenceConfig> refers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Class<? extends TServiceClient>, ReferenceConfig> refers = new ConcurrentHashMap<>();
     private AtomicBoolean initStatus = new AtomicBoolean(false);
     private MulticastSocket mc;
     private MulticastDiscovery() {
@@ -68,11 +70,11 @@ public class MulticastDiscovery {
         }
     }
 
-    public void addRefer(String refer, ReferenceConfig referenceConfig) {
-        if(refers.contains(refer)) {
+    public <T extends TServiceClient> void addRefer(Class<T> classType, ReferenceConfig referenceConfig) {
+        if(refers.contains(classType)) {
             return;
         }
-        refers.put(refer, referenceConfig);
+        refers.put(classType, referenceConfig);
     }
 
     private void addInstance(String name, ConsumerConfig consumerConfig) {
