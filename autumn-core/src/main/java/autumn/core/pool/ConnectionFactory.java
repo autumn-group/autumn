@@ -1,34 +1,30 @@
 package autumn.core.pool;
 
-import autumn.core.pool.impl.ConcurrentBag;
-import autumn.core.pool.impl.ConcurrentBagEntry;
-import autumn.core.pool.impl.ConcurrentBagEntryImpl;
-import autumn.core.pool.impl.ConnectionConfig;
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.layered.TFastFramedTransport;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Predicate;
+import autumn.core.pool.impl.ConcurrentBag;
+import autumn.core.pool.impl.ConcurrentBagEntry;
+import autumn.core.pool.impl.ConcurrentBagEntryImpl;
+import autumn.core.pool.impl.ConnectionConfig;
+import lombok.extern.slf4j.Slf4j;
 
 import static autumn.core.pool.impl.ConcurrentBagEntry.STATE_RESERVED;
 
 @Slf4j
 public class ConnectionFactory {
     private ConcurrentHashMap<String, ConcurrentBag> mapping;
-    private ConcurrentHashMap<String, CopyOnWriteArrayList<ConcurrentBagEntry>> monitor;
-
-
     private ConnectionFactory() {}
     private static ConnectionFactory singleton;
 
     private void init() {
         mapping = new ConcurrentHashMap<>();
-        monitor = new ConcurrentHashMap<>();
     }
     public static ConnectionFactory getInstance() {
         if (singleton == null) {
@@ -67,20 +63,15 @@ public class ConnectionFactory {
         }
 
         if(mapping.containsKey(service)) {
-            CopyOnWriteArrayList<ConcurrentBagEntry> entries = monitor.get(service);
             ConcurrentBag bag = mapping.get(service);
             ConcurrentBagEntry<? extends TServiceClient> bagEntry = new ConcurrentBagEntryImpl<>(service, ipPort, transport);
             bag.add(bagEntry);
-            entries.add(bagEntry);
             return;
         }
-        CopyOnWriteArrayList<ConcurrentBagEntry> entries = new CopyOnWriteArrayList<>();
         ConcurrentBag bag = new ConcurrentBag();
         ConcurrentBagEntry<? extends TServiceClient> bagEntry = new ConcurrentBagEntryImpl<>(service, ipPort, transport);
         bag.add(bagEntry);
-        entries.add(bagEntry);
         mapping.put(service, bag);
-        monitor.put(service, entries);
     }
 
     public ConcurrentBag getBag(String service) {
@@ -94,8 +85,6 @@ public class ConnectionFactory {
     }
 
     public void evictEntry(String service, ConcurrentBagEntry entry) {
-        CopyOnWriteArrayList<ConcurrentBagEntry> entries = monitor.get(service);
-        entries.removeIf(it -> it.getId().endsWith(entry.getId()));
         TTransport socket = (TTransport) entry.getEntry();
         entry.setState(STATE_RESERVED);
         if(socket.isOpen()) {
@@ -104,7 +93,6 @@ public class ConnectionFactory {
     }
 
     public void evictEntries(String service, String ipPort) {
-        CopyOnWriteArrayList<ConcurrentBagEntry> entries = monitor.get(service);
         Predicate<ConcurrentBagEntry> judge = (it) -> {
             String entryService = it.getService();
             String entryIpPort = it.getIpPort();
@@ -118,6 +106,5 @@ public class ConnectionFactory {
             }
           return false;
         };
-        entries.removeIf(judge);
     }
 }
