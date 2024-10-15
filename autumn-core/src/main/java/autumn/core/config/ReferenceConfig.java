@@ -7,6 +7,7 @@ import java.util.function.Function;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TMultiplexedProtocol;
 
+import autumn.core.enums.RegistryTypeEnum;
 import lombok.Data;
 
 /**
@@ -20,6 +21,7 @@ public class ReferenceConfig<R extends TServiceClient> {
     private Long poolTimeout;
     private Long connectionTimeout;
     private Long socketTimeout;
+    private RegistryTypeEnum registryTypeEnum;
     private List<ConsumerConfig> instances;
     private Class<R> interfaceClass;
     private Function<TMultiplexedProtocol, R> converter;

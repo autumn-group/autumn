@@ -24,7 +24,6 @@ public class TrainingTest {
         log.info("========================");
         ServiceConfig<SomeService.Iface> fooServiceConfig = new ServiceConfig<>();
         fooServiceConfig.setInterfaceClass(SomeService.Iface.class);
-        fooServiceConfig.setProviderId(SomeService.class.getName());
         TProcessor tprocessor = new SomeService.Processor<SomeService.Iface>(new SomeServiceImpl());
         AttachableProcessor attachableProcessor = new AttachableProcessor(tprocessor);
         fooServiceConfig.setRef(attachableProcessor);
@@ -40,8 +39,7 @@ public class TrainingTest {
                 .reference(referenceConfig)
                 .start();
 
-        SomeService.Iface someService = autumnBootstrap.get(SomeService.Iface.class);
-
+        SomeService.Client client;
 
     }
 

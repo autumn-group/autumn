@@ -3,9 +3,11 @@ package autumn.core.pool.impl;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.thrift.transport.TTransport;
+
 import autumn.core.pool.AutumnPool;
 
-public class ConcurrentBagEntryImpl<T> implements ConcurrentBagEntry{
+public class ConcurrentBagEntryImpl<T extends TTransport> implements ConcurrentBagEntry{
     private final AtomicInteger state =  new AtomicInteger(STATE_NOT_IN_USE);
     private String service;
     private String ipPort;
@@ -40,8 +42,7 @@ public class ConcurrentBagEntryImpl<T> implements ConcurrentBagEntry{
 
     @Override
     public void close() {
-        AutumnPool pool = AutumnPool.getInstance();
-
+        entry.close();
     }
 
     @Override

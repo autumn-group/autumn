@@ -1,7 +1,6 @@
 package autumn.core.pool;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.transport.TSocket;
@@ -15,8 +14,9 @@ import autumn.core.pool.impl.ConcurrentBagEntryImpl;
 import autumn.core.pool.impl.ConnectionConfig;
 import lombok.extern.slf4j.Slf4j;
 
-import static autumn.core.pool.impl.ConcurrentBagEntry.STATE_RESERVED;
-
+/**
+ * 负责创建，回收
+ */
 @Slf4j
 public class ConnectionFactory {
     private ConcurrentHashMap<String, ConcurrentBag> mapping;
@@ -57,6 +57,7 @@ public class ConnectionFactory {
             TTransport socket = new TSocket(ip, Integer.valueOf(port));
             transport = new TFastFramedTransport(socket);
             socket.open();
+
         } catch (TTransportException e) {
             log.warn("init client exception, config:{}, exception:", config);
             return;
@@ -74,7 +75,7 @@ public class ConnectionFactory {
         mapping.put(service, bag);
     }
 
-    public ConcurrentBag getBag(String service) {
+    public ConcurrentBag borrow(String service) {
         ConcurrentBag bag = mapping.get(service);
         return bag;
     }
@@ -84,27 +85,4 @@ public class ConnectionFactory {
         bagEntry.requite(entry);
     }
 
-    public void evictEntry(String service, ConcurrentBagEntry entry) {
-        TTransport socket = (TTransport) entry.getEntry();
-        entry.setState(STATE_RESERVED);
-        if(socket.isOpen()) {
-            socket.close();
-        }
-    }
-
-    public void evictEntries(String service, String ipPort) {
-        Predicate<ConcurrentBagEntry> judge = (it) -> {
-            String entryService = it.getService();
-            String entryIpPort = it.getIpPort();
-            if(service.equals(entryService) && ipPort.equals(entryIpPort)) {
-                TTransport socket = (TTransport) it.getEntry();
-                it.setState(STATE_RESERVED);
-                if(socket.isOpen()) {
-                    socket.close();
-                }
-                return true;
-            }
-          return false;
-        };
-    }
 }

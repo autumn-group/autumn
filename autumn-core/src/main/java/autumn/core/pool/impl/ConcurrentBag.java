@@ -1,12 +1,12 @@
 package autumn.core.pool.impl;
 
-import autumn.core.util.AutumnException;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import autumn.core.util.AutumnException;
+import lombok.extern.slf4j.Slf4j;
 
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -46,7 +46,7 @@ public class ConcurrentBag implements AutoCloseable {
                 }
 
                 timeout -= elapsedNanos(start);
-            } while (timeout > 10_000);
+            } while (timeout > 1_000);
 
             return null;
         } finally {
@@ -83,9 +83,18 @@ public class ConcurrentBag implements AutoCloseable {
         sharedList.add(entry);
     }
 
+
     @Override
     public void close() throws Exception {
         closed = true;
+
+        sharedList.forEach(it -> {
+            it.setState(ConcurrentBagEntry.STATE_REMOVED);
+            it.getEntry().close();
+        });
+        sharedList.clear();
+        handoffQueue.clear();
+        waiters.set(0);
     }
 
     private long elapsedNanos(final long startTime) {

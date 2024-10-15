@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum ConsumerPoolTypeEnum {
     SERVICE("SERVICE", "pool of service"),
     INTERFACE("INTERFACE", "pool of interface"),
+
     ;
     private String code;
     private String desc;
@@ -13,7 +14,5 @@ public enum ConsumerPoolTypeEnum {
         this.code = code;
         this.desc = desc;
     }
-
-
 
 }

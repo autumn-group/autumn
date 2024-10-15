@@ -1,6 +1,8 @@
 package autumn.core.pool.impl;
 
-public interface ConcurrentBagEntry<T> {
+import org.apache.thrift.transport.TTransport;
+
+public interface ConcurrentBagEntry<T extends TTransport> {
     int STATE_NOT_IN_USE = 0;
     int STATE_IN_USE = 1;
     int STATE_REMOVED = -1;
