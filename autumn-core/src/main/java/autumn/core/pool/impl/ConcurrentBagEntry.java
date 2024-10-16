@@ -2,7 +2,7 @@ package autumn.core.pool.impl;
 
 import org.apache.thrift.transport.TTransport;
 
-public interface ConcurrentBagEntry<T extends TTransport> {
+public interface ConcurrentBagEntry {
     int STATE_NOT_IN_USE = 0;
     int STATE_IN_USE = 1;
     int STATE_REMOVED = -1;
@@ -11,9 +11,11 @@ public interface ConcurrentBagEntry<T extends TTransport> {
     boolean compareAndSet(int expectState, int newState);
     void setState(int newState);
     int getState();
-    T getEntry();
+    <T extends TTransport> T getEntry();
     String getService();
-    String getIpPort();
+    String getIp();
+    Integer getPort();
     String getId();
     void close();
+
 }

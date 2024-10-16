@@ -2,7 +2,6 @@ package autumn.core.pool;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.thrift.TServiceClient;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
@@ -10,7 +9,6 @@ import org.apache.thrift.transport.layered.TFastFramedTransport;
 
 import autumn.core.pool.impl.ConcurrentBag;
 import autumn.core.pool.impl.ConcurrentBagEntry;
-import autumn.core.pool.impl.ConcurrentBagEntryImpl;
 import autumn.core.pool.impl.ConnectionConfig;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,13 +63,13 @@ public class ConnectionFactory {
 
         if(mapping.containsKey(service)) {
             ConcurrentBag bag = mapping.get(service);
-            ConcurrentBagEntry<? extends TServiceClient> bagEntry = new ConcurrentBagEntryImpl<>(service, ipPort, transport);
-            bag.add(bagEntry);
+            //ConcurrentBagEntry<? extends TServiceClient> bagEntry = new ConcurrentBagEntryImpl<>(service, ipPort, transport);
+            //bag.add(bagEntry);
             return;
         }
         ConcurrentBag bag = new ConcurrentBag();
-        ConcurrentBagEntry<? extends TServiceClient> bagEntry = new ConcurrentBagEntryImpl<>(service, ipPort, transport);
-        bag.add(bagEntry);
+        //ConcurrentBagEntry<? extends TServiceClient> bagEntry = new ConcurrentBagEntryImpl<>(service, ipPort, transport);
+        //bag.add(bagEntry);
         mapping.put(service, bag);
     }
 

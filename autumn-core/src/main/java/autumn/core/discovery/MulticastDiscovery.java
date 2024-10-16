@@ -89,6 +89,38 @@ public class MulticastDiscovery {
         consumers.add(consumerConfig);
     }
 
+    public void shutdownHook() {
+        ApplicationConfig applicationConfig = ApplicationConfig.getInstance();
+        String ip = applicationConfig.getMulticastIp();
+        Integer port = applicationConfig.getMulticastPort();
+        ProviderConfig config = ProviderConfig.getInstance();
+        String registryRequest = ConverterUtil.registryRequest(config);
+        MulticastSocket mcs = null;
+        InetAddress group = null;
+        try {
+            group = InetAddress.getByName(ip);
+            mcs = new MulticastSocket(port);
+            mcs.joinGroup(group);
+            byte[] buffer = registryRequest.getBytes();
+            DatagramPacket dp = new DatagramPacket(buffer, buffer.length, group, port);
+            mcs.send(dp);
+            Arrays.fill(buffer, (byte) 0);
+        } catch (Exception e) {
+            log.warn("autumn-multicast-registry receive exception: ", e);
+        } finally {
+            if (mcs != null) {
+                try {
+                    mcs.leaveGroup(group);
+                    mcs.close();
+                } catch (IOException e) {
+                    log.warn("autumn-multicast-registry receive exception: ", e);
+                }
+            }
+        }
+
+    }
+
+
     private void registry(MulticastSocket ms, InetAddress group, Integer port) {
         ProviderConfig config = ProviderConfig.getInstance();
         String registryRequest = ConverterUtil.registryRequest(config);
@@ -108,7 +140,6 @@ public class MulticastDiscovery {
                 } catch (IOException e) {
                     log.warn("autumn-multicast-registry receive exception: ", e);
                 }
-
             }
         }
     }
@@ -138,7 +169,16 @@ public class MulticastDiscovery {
                         DatagramPacket sendPacket = new DatagramPacket(sendBuff, sendBuff.length, group, port);
                         mc.send(sendPacket);
                         Arrays.fill(sendBuff, (byte) 0);
+                        return;
                     }
+
+                    if(ConverterUtil.MULTICAST_SHUTDOWN_REQUEST.equals(params.get(ConverterUtil.CONSTANT_URL_PATH))) {
+
+                        AutumnPool autumnPool = AutumnPool.getInstance();
+                        String service = params.get("name");
+                        autumnPool.remove(service, ip);
+                    }
+
                 }
             } catch (IOException e) {
                 log.warn("autumn-multicast-discovery receive exception: ", e);
@@ -160,23 +200,12 @@ public class MulticastDiscovery {
         log.info("autumn-multicast-registry begin listening");
     }
 
-    private void checkMulticastAddress(InetAddress multicastAddress) {
-        if (!multicastAddress.isMulticastAddress()) {
-            String message = "Invalid multicast address " + multicastAddress;
-            if (multicastAddress instanceof Inet4Address) {
-                throw new IllegalArgumentException(message + ", " +
-                        "ipv4 multicast address scope: 224.0.0.0 - 239.255.255.255.");
-            } else {
-                throw new IllegalArgumentException(message + ", " + "ipv6 multicast address must start with ff, " +
-                        "for example: ff01::1");
-            }
-        }
-    }
-
     private void receive(String ip, String data) {
         log.info("multicast discovery receive data, ip:{}, data:{}", ip, data);
         ConsumerConfig multicastConfig = ConverterUtil.queryStringToProvider(data);
         addInstance(multicastConfig.getName(), multicastConfig);
     }
+
+
 
 }

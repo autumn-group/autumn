@@ -1,22 +1,24 @@
 package autumn.core.pool.impl;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.thrift.transport.TTransport;
 
-import autumn.core.pool.AutumnPool;
-
 public class ConcurrentBagEntryImpl<T extends TTransport> implements ConcurrentBagEntry{
     private final AtomicInteger state =  new AtomicInteger(STATE_NOT_IN_USE);
     private String service;
-    private String ipPort;
+    private String ip;
+    private Integer port;
     private String id;
     private T entry;
-    public ConcurrentBagEntryImpl(String service, String ipPort, T entry) {
+
+    public ConcurrentBagEntryImpl(String service, String ip, Integer port, T entry) {
         this.service = service;
         this.entry = entry;
-        this.ipPort = ipPort;
+        this.ip = ip;
+        this.port = port;
         id = UUID.randomUUID().toString();
     }
 
@@ -31,8 +33,13 @@ public class ConcurrentBagEntryImpl<T extends TTransport> implements ConcurrentB
     }
 
     @Override
-    public String getIpPort() {
-        return this.ipPort;
+    public String getIp() {
+        return this.ip;
+    }
+
+    @Override
+    public Integer getPort() {
+        return this.port;
     }
 
     @Override
@@ -58,5 +65,20 @@ public class ConcurrentBagEntryImpl<T extends TTransport> implements ConcurrentB
     @Override
     public int getState() {
         return state.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ConcurrentBagEntryImpl<?> that = (ConcurrentBagEntryImpl<?>) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

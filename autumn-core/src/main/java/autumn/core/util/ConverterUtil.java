@@ -17,6 +17,8 @@ public class ConverterUtil {
     public final static String CONSTANT_URL_PATH= "_url_path_";
     public final static String MULTICAST_REQUEST= "multicast-request";
     public final static String MULTICAST_RESPONSE= "multicast-response";
+    public final static String MULTICAST_SHUTDOWN_REQUEST= "multicast-shutdown-request";
+    public final static String MULTICAST_SHUTDOWN_RESPONSE= "multicast-shutdown-response";
     private ConverterUtil() {
 
     }
@@ -90,6 +92,61 @@ public class ConverterUtil {
 
         return queryString;
     }
+
+    public static String shutdownResponse(ProviderConfig config) {
+        String queryString = CONSTANT_REGISTRY.concat("://")
+                .concat(MULTICAST_SHUTDOWN_RESPONSE)
+                .concat("?");
+        if(Objects.nonNull(config.getName())) {
+            queryString = queryString.concat("name=")
+                    .concat(config.getName())
+                    .concat("&");
+        }
+        if(Objects.nonNull(config.getIp())) {
+            queryString = queryString.concat("ip=")
+                    .concat(config.getIp())
+                    .concat("&");
+        }
+        if(Objects.nonNull(config.getPort())) {
+            queryString = queryString.concat("port=")
+                    .concat(config.getPort().toString())
+                    .concat("&");
+        }
+
+        if(queryString.length() > 0) {
+            queryString = queryString.substring(0, queryString.length() - 1);
+        }
+
+        return queryString;
+    }
+
+    public static String shutdownRequest(ProviderConfig config) {
+        String queryString = CONSTANT_REGISTRY.concat("://")
+                .concat(MULTICAST_SHUTDOWN_REQUEST)
+                .concat("?");
+        if(Objects.nonNull(config.getName())) {
+            queryString = queryString.concat("name=")
+                    .concat(config.getName())
+                    .concat("&");
+        }
+        if(Objects.nonNull(config.getIp())) {
+            queryString = queryString.concat("ip=")
+                    .concat(config.getIp())
+                    .concat("&");
+        }
+        if(Objects.nonNull(config.getPort())) {
+            queryString = queryString.concat("port=")
+                    .concat(config.getPort().toString())
+                    .concat("&");
+        }
+
+        if(queryString.length() > 0) {
+            queryString = queryString.substring(0, queryString.length() - 1);
+        }
+
+        return queryString;
+    }
+
 
     public static String registryRequest(ProviderConfig config) {
         String queryString = CONSTANT_REGISTRY.concat("://")

@@ -83,6 +83,12 @@ public class ConcurrentBag implements AutoCloseable {
         sharedList.add(entry);
     }
 
+    public void remove(ConcurrentBagEntry entry) {
+        entry.setState(ConcurrentBagEntry.STATE_REMOVED);
+        sharedList.remove(entry);
+        handoffQueue.remove(entry);
+    }
+
 
     @Override
     public void close() throws Exception {
@@ -103,5 +109,13 @@ public class ConcurrentBag implements AutoCloseable {
 
     private long currentTime() {
         return System.nanoTime();
+    }
+
+    public void removeByIp(String ip) {
+        sharedList.forEach(it -> {
+            
+        });
+
+
     }
 }
