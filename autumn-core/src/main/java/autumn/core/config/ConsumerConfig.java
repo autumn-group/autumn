@@ -11,5 +11,6 @@ public class ConsumerConfig {
     private String name;
     private String ip;
     private Integer port;
+    private String label;
     private Integer connections;
 }

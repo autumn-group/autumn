@@ -17,7 +17,6 @@ import lombok.Data;
 @Data
 public class ReferenceConfig<R extends TServiceClient> {
     private String name;
-    private String namespace;
     private Long poolTimeout;
     private Long connectionTimeout;
     private Long socketTimeout;
